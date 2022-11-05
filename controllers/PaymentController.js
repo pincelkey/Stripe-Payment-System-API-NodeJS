@@ -18,6 +18,41 @@ class PaymentController {
             });
         }
     }
+
+    async storeOrders (req, res) {
+        const productType = req.params.product_type;
+        const customerId = req.body.customer_id;
+
+        switch (productType) {
+            case 'course':
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount: 20 * 100,
+                    currency: 'USD',
+                    description: 'Curso de WordPress Avanzado',
+                    customer: customerId,
+                })
+
+                if (paymentIntent) {
+                    res.send({
+                        status: true,
+                        data: paymentIntent.client_secret
+                    })
+                }
+
+                res.send({
+                    status: false,
+                    message: 'No payment intent created'
+                })
+                break;
+
+            default:
+                res.send({
+                    status: false,
+                    message: 'No right product type'
+                })
+                break;
+        }
+    }
 }
 
 module.exports = PaymentController
