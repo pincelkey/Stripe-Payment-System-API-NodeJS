@@ -23,6 +23,7 @@ app
 
 app
     .get('/users/:customer_id/subscriptions', profileController.indexSubscriptions)
+    .get('/users/:customer_id/courses', profileController.indexCourses)
 
 
 module.exports = app
