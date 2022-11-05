@@ -83,6 +83,30 @@ class PaymentController {
                 break;
         }
     }
+
+    async completePayment(req, res) {
+        const STRIPE_WEBHOOK_KEY = 'whsec_8E5YhnMLLH0LPOwy5d3PeKZDgkHKEumQ'
+        let event;
+
+        try {
+            event = stripe.webhooks.constructEvent(
+                req.body,
+                req.header('Stripe-Signature'),
+                STRIPE_WEBHOOK_KEY
+            )
+        } catch (error) {
+            res.status(405);
+            res.send({
+                error: error.message
+            })
+        }
+
+        const dataObject = event.data.object
+
+        res.send({
+            data: 'Todo correcto'
+        })
+    }
 }
 
 module.exports = PaymentController
