@@ -103,9 +103,38 @@ class PaymentController {
 
         const dataObject = event.data.object
 
-        res.send({
-            data: 'Todo correcto'
-        })
+        switch (event.type) {
+            case 'invoice.payment_succeeded':
+                if (dataObject['invoice'] === 'subscription_create') {
+                    const subscriptionId = dataObject['subscription'];
+                    const paymentIntentId = dataObject['payment_intent'];
+
+                    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+                    try {
+                        const subscription = await stripe.subscriptions.update(
+                            subscriptionId,
+                            {
+                                default_payment_method: paymentIntent.payment_method,
+                            }
+                        )
+
+                        res.send({
+                            message: 'Subscription completed'
+                        })
+                    } catch (error) {
+                        res.status(405)
+                        res.send({
+                            message: error.message
+                        })
+                    }
+                }
+                break;
+        
+            default:
+                console.log('Undefined event type')
+                break;
+        }
     }
 }
 
