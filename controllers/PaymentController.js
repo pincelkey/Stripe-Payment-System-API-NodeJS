@@ -1,6 +1,10 @@
 const stripe = require('stripe')('sk_test_51LL9sGEl9RLg2yjvlLfibzGH6XETW5cpkDv8dvoGY4Ik9o3u7UjRcs2o84VZbGP4iD45l0bf90HB18358WLnPVnZ00NRZ9dQsd')
-
+const fs = require('fs')
 class PaymentController {
+    constructor() {
+        this.completePayment = this.completePayment.bind(this);
+    }
+
     async login (req, res) {
         const customer = await stripe.customers.create({
             email: req.body.email
@@ -130,10 +134,37 @@ class PaymentController {
                     }
                 }
                 break;
+
+            case 'payment_intent.succeeded':
+                this.__storeDatabase(1414)
+
+                res.send({
+                    status: true,
+                    message: 'Course access created'
+                })
+                break;
         
             default:
                 console.log('Undefined event type')
                 break;
+        }
+    }
+
+    __storeDatabase(courseId) {
+        const data = fs.readFileSync('./database/db.json', {encoding: "utf8", flag: 'r'});
+
+        try {
+            const database = JSON.parse(data);
+
+            database.push({
+                course: courseId
+            })
+
+            fs.writeFileSync('./database/db.json', JSON.stringify(database))
+
+            return true
+        } catch (error) {
+            throw new Error(error.message)
         }
     }
 }

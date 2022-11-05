@@ -17,6 +17,7 @@ app
     .post('/login', paymentController.login)
     .post('/orders/:product_type', paymentController.storeOrders)
     .post('/webhook', bodyParser.raw({ type: 'application/json'}), paymentController.completePayment)
+    .post('/test', paymentController.test)
 
 
 module.exports = app
