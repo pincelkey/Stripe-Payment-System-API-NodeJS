@@ -1,4 +1,4 @@
-const stripe = require('stripe')('sk_test_51LL9sGEl9RLg2yjvlLfibzGH6XETW5cpkDv8dvoGY4Ik9o3u7UjRcs2o84VZbGP4iD45l0bf90HB18358WLnPVnZ00NRZ9dQsd')
+const stripe = require('stripe')('xx')
 const fs = require('fs')
 class PaymentController {
     constructor() {
@@ -89,7 +89,7 @@ class PaymentController {
     }
 
     async completePayment(req, res) {
-        const STRIPE_WEBHOOK_KEY = 'whsec_8E5YhnMLLH0LPOwy5d3PeKZDgkHKEumQ'
+        const STRIPE_WEBHOOK_KEY = 'xx'
         let event;
 
         try {
@@ -109,7 +109,7 @@ class PaymentController {
 
         switch (event.type) {
             case 'invoice.payment_succeeded':
-                if (dataObject['invoice'] === 'subscription_create') {
+                if (dataObject['billing_reason'] === 'subscription_create') {
                     const subscriptionId = dataObject['subscription'];
                     const paymentIntentId = dataObject['payment_intent'];
 
@@ -136,11 +136,18 @@ class PaymentController {
                 break;
 
             case 'payment_intent.succeeded':
-                this.__storeDatabase(1414)
+                if (!['Subscription update', 'Subscription creation'].includes(dataObject['description'])) {
+                    this.__storeDatabase(1414)
+
+                    res.send({
+                        status: true,
+                        message: 'Course access created'
+                    })
+                }
 
                 res.send({
                     status: true,
-                    message: 'Course access created'
+                    message: 'Empty'
                 })
                 break;
         
